@@ -3,6 +3,12 @@ export interface AuthResponse {
   refresh_token: string;
 }
 
+// Credenciales enviadas al endpoint de login
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
 // Para el payload que extraes en el Guard de NestJS
 export interface UserPayload {
   id: number;

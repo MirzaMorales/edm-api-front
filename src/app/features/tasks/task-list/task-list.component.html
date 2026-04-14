@@ -1,0 +1,70 @@
+<div class="task-dashboard">
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Mis Tareas</h1>
+      <p class="subtitle">Gestiona tus cosas por hacer de forma rápida y sencilla.</p>
+    </div>
+    <button class="btn-primary" (click)="navigateToCreate()">
+      <lucide-icon name="plus" class="btn-icon-sm"></lucide-icon> Nueva Tarea
+    </button>
+  </div>
+
+  <div class="status-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando tus tareas...</p>
+  </div>
+
+  <div class="status-container error" *ngIf="errorMessage && !isLoading">
+    <p>{{ errorMessage }}</p>
+    <button class="btn-secondary" (click)="loadTasks()">Reintentar</button>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && tasks.length === 0 && !errorMessage">
+    <div class="empty-icon">
+      <lucide-icon name="plus" [size]="48" style="opacity: 0.3;"></lucide-icon>
+    </div>
+    <h3>No tienes tareas</h3>
+    <p>Aún no has creado ninguna tarea. ¡Comienza ahora!</p>
+    <button class="btn-primary" (click)="navigateToCreate()">Crear la primera</button>
+  </div>
+
+  <div class="task-grid" *ngIf="!isLoading && tasks.length > 0">
+    <div class="task-card"
+         *ngFor="let task of tasks"
+         [class.priority-high]="task.priority && !task.completed"
+         [class.completed]="task.completed">
+
+      <div class="card-header">
+        <!-- Badge de estado: completada o prioridad -->
+        <span class="badge" [ngClass]="{
+          'badge-done': task.completed,
+          'badge-high': !task.completed && task.priority,
+          'badge-normal': !task.completed && !task.priority
+        }">
+          {{ task.completed ? 'Completada' : (task.priority ? 'Alta Prioridad' : 'Normal') }}
+        </span>
+
+        <div class="card-actions">
+          <!-- Botón para marcar/desmarcar como completada -->
+          <button class="btn-icon complete"
+                  [class.is-done]="task.completed"
+                  (click)="toggleCompleted(task)"
+                  [title]="task.completed ? 'Marcar como pendiente' : 'Marcar como completada'">
+            <lucide-icon name="check-circle" [size]="18"></lucide-icon>
+          </button>
+          <button class="btn-icon edit" (click)="navigateToEdit(task.id)" title="Editar" [disabled]="task.completed">
+            <lucide-icon name="pencil" [size]="18"></lucide-icon>
+          </button>
+          <button class="btn-icon delete" (click)="deleteTask(task.id)" title="Eliminar">
+            <lucide-icon name="trash-2" [size]="18"></lucide-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <h3 class="task-title" [class.title-done]="task.completed">{{ task.name }}</h3>
+        <p class="task-desc">{{ task.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>

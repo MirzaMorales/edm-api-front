@@ -1,0 +1,10 @@
+.main-content {
+  min-height: calc(100vh - 70px);
+  background-color: #f8f9fa;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}

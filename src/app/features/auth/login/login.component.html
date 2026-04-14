@@ -1,25 +1,112 @@
-<div class="login-container">
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-card">
-    <h2>Iniciar Sesión</h2>
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Iniciar Sesión</h2>
+      <p>Ingresa tus datos para continuar</p>
+    </div>
     
-    <div class="form-group">
-      <label for="username">Usuario</label>
-      <input id="username" type="text" formControlName="username" placeholder="Tu username de Prisma">
-      <small *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
-        El usuario es requerido (mín. 3 caracteres).
-      </small>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="username">Usuario</label>
+        <div class="input-container">
+          <input id="username" type="text" formControlName="username" placeholder="Username" autocomplete="username">
+        </div>
+        <!-- Mensajes de error específicos por tipo de validación -->
+        <small class="error-text" *ngIf="loginForm.get('username')?.hasError('required') && loginForm.get('username')?.touched">
+          El usuario es requerido.
+        </small>
+        <small class="error-text" *ngIf="loginForm.get('username')?.hasError('minlength') && loginForm.get('username')?.touched">
+          El usuario debe tener al menos 3 caracteres.
+        </small>
+        <small class="error-text" *ngIf="loginForm.get('username')?.hasError('pattern') && loginForm.get('username')?.touched">
+          Solo se permiten letras, números, guiones y guiones bajos (sin espacios).
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-container" style="position: relative;">
+          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" autocomplete="current-password" style="padding-right: 40px;">
+          <button type="button" class="btn-icon" *ngIf="!passwordFailed" (click)="togglePasswordVisibility()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: transparent; cursor: pointer; color: inherit; padding: 0;">
+            <lucide-icon [name]="showPassword ? 'eye-off' : 'eye'" [size]="20"></lucide-icon>
+          </button>
+        </div>
+        <small class="error-text" *ngIf="loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched">
+          La contraseña es requerida.
+        </small>
+        <small class="error-text" *ngIf="loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched">
+          La contraseña debe tener al menos 6 caracteres.
+        </small>
+      </div>
+
+      <button type="submit" [disabled]="loginForm.invalid" class="btn-primary">
+        <span>Ingresar a tu cuenta</span>
+      </button>
+
+      <div class="register-link">
+        <p>¿No tienes una cuenta? <a (click)="toggleRegisterModal()">Crear cuenta</a></p>
+      </div>
+
+      <div class="error-banner" *ngIf="errorMessage">
+        <p>{{ errorMessage }}</p>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Registro -->
+<div class="modal-overlay" *ngIf="showRegisterModal">
+  <div class="modal-card">
+    <div class="login-header">
+      <h2>Nueva Cuenta</h2>
+      <p>Completa tus datos para registrarte</p>
     </div>
 
-    <div class="form-group">
-      <label for="password">Contraseña</label>
-      <input id="password" type="password" formControlName="password" placeholder="********">
-      <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-        La contraseña debe tener al menos 6 caracteres.
-      </small>
-    </div>
+    <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()" class="login-form">
+      <div class="form-row">
+        <div class="form-group col-half">
+          <label for="reg-name">Nombre</label>
+          <input id="reg-name" type="text" formControlName="name">
+          <small class="error-text" *ngIf="registerForm.get('name')?.hasError('required') && registerForm.get('name')?.touched">El nombre es requerido.</small>
+          <small class="error-text" *ngIf="registerForm.get('name')?.hasError('minlength') && registerForm.get('name')?.touched">Mínimo 3 caracteres.</small>
+          <small class="error-text" *ngIf="registerForm.get('name')?.hasError('pattern') && registerForm.get('name')?.touched">Solo se permiten letras y espacios.</small>
+        </div>
+        <div class="form-group col-half">
+          <label for="reg-lastname">Apellido</label>
+          <input id="reg-lastname" type="text" formControlName="lastname">
+          <small class="error-text" *ngIf="registerForm.get('lastname')?.hasError('required') && registerForm.get('lastname')?.touched">El apellido es requerido.</small>
+          <small class="error-text" *ngIf="registerForm.get('lastname')?.hasError('minlength') && registerForm.get('lastname')?.touched">Mínimo 3 caracteres.</small>
+          <small class="error-text" *ngIf="registerForm.get('lastname')?.hasError('pattern') && registerForm.get('lastname')?.touched">Solo se permiten letras y espacios.</small>
+        </div>
+      </div>
 
-    <button type="submit" [disabled]="loginForm.invalid">Entrar</button>
+      <div class="form-group">
+        <label for="reg-username">Usuario</label>
+        <input id="reg-username" type="text" formControlName="username">
+        <small class="error-text" *ngIf="registerForm.get('username')?.hasError('required') && registerForm.get('username')?.touched">El usuario es requerido.</small>
+        <small class="error-text" *ngIf="registerForm.get('username')?.hasError('minlength') && registerForm.get('username')?.touched">Mínimo 3 caracteres.</small>
+        <small class="error-text" *ngIf="registerForm.get('username')?.hasError('pattern') && registerForm.get('username')?.touched">Solo letras, números, guiones y guiones bajos (sin espacios).</small>
+      </div>
 
-    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
-  </form>
+      <div class="form-group">
+        <label for="reg-password">Contraseña</label>
+        <input id="reg-password" type="password" formControlName="password" placeholder="••••••••">
+        <small class="error-text" *ngIf="registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched">La contraseña es requerida.</small>
+        <small class="error-text" *ngIf="registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched">Mínimo 6 caracteres.</small>
+        <small class="error-text" *ngIf="registerForm.get('password')?.hasError('pattern') && registerForm.get('password')?.touched">Debe incluir minúsculas, mayúsculas, un número y un carácter especial.</small>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="toggleRegisterModal()">Cancelar</button>
+        <button type="submit" [disabled]="registerForm.invalid || isSubmitting" class="btn-primary">
+          <span *ngIf="!isSubmitting">Crear Cuenta</span>
+          <span *ngIf="isSubmitting" class="spinner-small"></span>
+        </button>
+      </div>
+
+      <div class="message-banner" [class.success]="registerMessage.includes('éxito')" *ngIf="registerMessage">
+        <p>{{ registerMessage }}</p>
+      </div>
+    </form>
+  </div>
 </div>

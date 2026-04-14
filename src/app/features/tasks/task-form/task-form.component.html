@@ -1,0 +1,86 @@
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>{{ isEditMode ? 'Editar Tarea' : 'Nueva Tarea' }}</h2>
+      <p>Llena la información a continuación para {{ isEditMode ? 'actualizar' : 'crear' }} la tarea.</p>
+    </div>
+
+    <!-- Spinner Loading (For Edit Mode) -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Cargando datos...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-banner" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+      
+      <!-- Nombre de Tarea -->
+      <div class="form-group">
+        <label for="name">Nombre de la Tarea <span class="required">*</span></label>
+        <input 
+          id="name" 
+          type="text" 
+          formControlName="name" 
+          class="form-control" 
+          placeholder="Ej: Terminar reporte mensual"
+          [class.is-invalid]="taskForm.get('name')?.invalid && taskForm.get('name')?.touched"
+        >
+        <div class="error-text" *ngIf="taskForm.get('name')?.hasError('required') && taskForm.get('name')?.touched">
+          El nombre de la tarea es requerido.
+        </div>
+        <div class="error-text" *ngIf="taskForm.get('name')?.hasError('minlength') && taskForm.get('name')?.touched">
+          El nombre debe tener al menos 3 caracteres.
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group">
+        <label for="description">Descripción <span class="required">*</span></label>
+        <textarea 
+          id="description" 
+          formControlName="description" 
+          class="form-control" 
+          rows="4"
+          placeholder="Añade detalles sobre lo que hay que hacer..."
+          [class.is-invalid]="taskForm.get('description')?.invalid && taskForm.get('description')?.touched"
+        ></textarea>
+        <!-- Contador de caracteres: ayuda al usuario a saber cuánto espacio queda -->
+        <div class="char-counter" [class.char-warning]="descRemainingChars <= 50" [class.char-danger]="descRemainingChars <= 10">
+          {{ descRemainingChars }} caracteres restantes
+        </div>
+        <div class="error-text" *ngIf="taskForm.get('description')?.hasError('required') && taskForm.get('description')?.touched">
+          La descripción es requerida.
+        </div>
+        <div class="error-text" *ngIf="taskForm.get('description')?.hasError('maxlength') && taskForm.get('description')?.touched">
+          La descripción no puede superar los 500 caracteres.
+        </div>
+      </div>
+
+      <!-- Prioridad -->
+      <div class="form-group switch-group">
+        <label class="switch-container">
+          <input type="checkbox" formControlName="priority">
+          <span class="slider round"></span>
+        </label>
+        <div class="switch-label">
+          <span class="main-label">Marcar como Alta Prioridad</span>
+          <span class="sub-label">Destacará esta tarea en tu tablero</span>
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="cancel()" [disabled]="isSubmitting">Cancelar</button>
+        <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting">{{ isEditMode ? 'Actualizar Tarea' : 'Crear Tarea' }}</span>
+          <span *ngIf="isSubmitting" class="button-spinner"></span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

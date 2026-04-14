@@ -1,0 +1,59 @@
+<div class="list-dashboard">
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Gestión de Usuarios</h1>
+      <p class="subtitle">Visualiza y administra todos los usuarios registrados.</p>
+    </div>
+    <a routerLink="/users/new" class="btn-primary">
+      <lucide-icon name="plus" class="btn-icon-sm"></lucide-icon> Nuevo Usuario
+    </a>
+  </div>
+
+  <div *ngIf="loading" class="status-container">
+    <div class="spinner"></div>
+    <p>Cargando usuarios...</p>
+  </div>
+
+  <div *ngIf="error" class="status-container error">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error" class="card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Usuario</th>
+            <th>Creación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>
+              <div class="user-info">
+                <div class="user-avatar">{{ user.name.charAt(0) | uppercase }}</div>
+                <div class="user-details">
+                  <span class="full-name">{{ user.name }} {{ user.lastname }}</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="username-badge">@{{ user.username }}</span></td>
+            <td><span class="date-text">{{ user.create_at | date:'shortDate' }}</span></td>
+          </tr>
+          <tr *ngIf="users.length === 0">
+            <td colspan="3">
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <lucide-icon name="plus" [size]="48" style="opacity: 0.3;"></lucide-icon>
+                </div>
+                <h3>No hay usuarios</h3>
+                <p>Aún no hay usuarios registrados en el sistema.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

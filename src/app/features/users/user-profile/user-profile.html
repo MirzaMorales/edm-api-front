@@ -1,0 +1,47 @@
+<div class="profile-container">
+  <div class="profile-card" *ngIf="!loading && user">
+    <div class="profile-header">
+      <div class="avatar-large">{{ getInitials() }}</div>
+      <h1>{{ user.name }} {{ user.lastname }}</h1>
+      <p class="username-tag">@{{ user.username }}</p>
+    </div>
+
+    <div class="profile-details">
+      <div class="detail-item">
+        <span class="label">Nombre completo</span>
+        <span class="value">{{ user.name }} {{ user.lastname }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Nombre de usuario</span>
+        <span class="value">{{ user.username }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Miembro desde</span>
+        <span class="value">{{ user.create_at | date:'longDate' }}</span>
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <button class="btn-profile edit" (click)="editProfile()">
+        <lucide-icon name="pencil" class="btn-icon-profile"></lucide-icon> Editar Perfil
+      </button>
+      <button class="btn-profile delete" (click)="deleteProfile()">
+        <lucide-icon name="trash-2" class="btn-icon-profile"></lucide-icon> Eliminar Mi Cuenta
+      </button>
+    </div>
+
+    <div class="profile-footer">
+      <p class="quote">“Gestionando tus tareas con EDM API.”</p>
+    </div>
+  </div>
+
+  <div class="status-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando tu información...</p>
+  </div>
+
+  <div class="status-state error" *ngIf="error">
+    <div class="error-icon">⚠️</div>
+    <p>{{ error }}</p>
+  </div>
+</div>

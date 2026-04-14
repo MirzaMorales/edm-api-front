@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, finalize } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AuthResponse } from '../../models/auth.model';
+import { AuthResponse, LoginCredentials } from '../../models/auth.model';
 
 
 
@@ -12,7 +12,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(credentials: AuthResponse): Observable<AuthResponse> {
+  login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(res => {
         localStorage.setItem('at', res.access_token);
@@ -21,14 +21,24 @@ export class AuthService {
     );
   }
 
+  getProfile(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/me`);
+  }
+
   // Este método coincide con tu @Post("logout") en NestJS
   logout(): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/logout`, {}).pipe(
-      tap(() => {
+      finalize(() => {
+        // Limpiamos los tokens locales pase lo que pase con la petición al servidor
         localStorage.clear();
       })
     );
   }
 
-  getAccessToken() { return localStorage.getItem('at'); }
+  getAccessToken() { 
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return localStorage.getItem('at'); 
+    }
+    return null;
+  }
 }

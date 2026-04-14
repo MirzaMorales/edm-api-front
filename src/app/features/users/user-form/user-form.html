@@ -1,0 +1,73 @@
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
+      <p>Llena la información a continuación para {{ isEditMode ? 'actualizar' : 'crear' }} el usuario.</p>
+    </div>
+
+    <div *ngIf="loading && isEditMode" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando datos...</p>
+    </div>
+
+    <div *ngIf="error" class="error-banner">
+      {{ error }}
+    </div>
+
+    <form *ngIf="!loading || !isEditMode" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+      
+      <div class="form-row">
+        <div class="form-group col-half">
+          <label for="name">Nombre <span class="required">*</span></label>
+          <input type="text" id="name" formControlName="name" class="form-control"
+                 placeholder="Ej: Ana"
+                 [ngClass]="{'is-invalid': userForm.get('name')?.invalid && userForm.get('name')?.touched}">
+          <div class="error-text" *ngIf="userForm.get('name')?.hasError('required') && userForm.get('name')?.touched">El nombre es requerido.</div>
+          <div class="error-text" *ngIf="userForm.get('name')?.hasError('minlength') && userForm.get('name')?.touched">Mínimo 3 caracteres.</div>
+          <div class="error-text" *ngIf="userForm.get('name')?.hasError('pattern') && userForm.get('name')?.touched">Solo letras y espacios.</div>
+        </div>
+    
+        <div class="form-group col-half">
+          <label for="lastname">Apellido <span class="required">*</span></label>
+          <input type="text" id="lastname" formControlName="lastname" class="form-control"
+                 placeholder="Ej: Pérez"
+                 [ngClass]="{'is-invalid': userForm.get('lastname')?.invalid && userForm.get('lastname')?.touched}">
+          <div class="error-text" *ngIf="userForm.get('lastname')?.hasError('required') && userForm.get('lastname')?.touched">El apellido es requerido.</div>
+          <div class="error-text" *ngIf="userForm.get('lastname')?.hasError('minlength') && userForm.get('lastname')?.touched">Mínimo 3 caracteres.</div>
+          <div class="error-text" *ngIf="userForm.get('lastname')?.hasError('pattern') && userForm.get('lastname')?.touched">Solo letras y espacios.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Nombre de Usuario <span class="required">*</span></label>
+        <div class="input-container">
+          <input type="text" id="username" formControlName="username" class="form-control"
+                 placeholder="aperez32"
+                 [ngClass]="{'is-invalid': userForm.get('username')?.invalid && userForm.get('username')?.touched}">
+        </div>
+        <div class="error-text" *ngIf="userForm.get('username')?.hasError('required') && userForm.get('username')?.touched">El nombre de usuario es requerido.</div>
+        <div class="error-text" *ngIf="userForm.get('username')?.hasError('minlength') && userForm.get('username')?.touched">Mínimo 3 caracteres.</div>
+        <div class="error-text" *ngIf="userForm.get('username')?.hasError('pattern') && userForm.get('username')?.touched">Solo letras, números, guiones y guiones bajos. Sin espacios.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña <span *ngIf="!isEditMode" class="required">*</span> <span *ngIf="isEditMode" class="text-muted">(Dejar en blanco para no modificar)</span></label>
+        <input type="password" id="password" formControlName="password" class="form-control"
+               placeholder="••••••••"
+               [ngClass]="{'is-invalid': userForm.get('password')?.invalid && userForm.get('password')?.touched}">
+        <div class="error-text" *ngIf="userForm.get('password')?.hasError('required') && userForm.get('password')?.touched">La contraseña es requerida.</div>
+        <div class="error-text" *ngIf="userForm.get('password')?.hasError('minlength') && userForm.get('password')?.touched">Mínimo 6 caracteres.</div>
+        <div class="error-text" *ngIf="userForm.get('password')?.hasError('pattern') && userForm.get('password')?.touched">Debe incluir minúsculas, mayúsculas, un número y un carácter especial.</div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/users" class="btn-cancel">Cancelar</a>
+        <button type="submit" class="btn-submit" [disabled]="loading || userForm.invalid">
+          <span *ngIf="!loading">{{ isEditMode ? 'Actualizar Usuario' : 'Crear Usuario' }}</span>
+          <span *ngIf="loading" class="button-spinner"></span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
