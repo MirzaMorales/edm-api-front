@@ -86,11 +86,17 @@
         <small class="error-text" *ngIf="registerForm.get('username')?.hasError('required') && registerForm.get('username')?.touched">El usuario es requerido.</small>
         <small class="error-text" *ngIf="registerForm.get('username')?.hasError('minlength') && registerForm.get('username')?.touched">Mínimo 3 caracteres.</small>
         <small class="error-text" *ngIf="registerForm.get('username')?.hasError('pattern') && registerForm.get('username')?.touched">Solo letras, números, guiones y guiones bajos (sin espacios).</small>
+        <small class="error-text" *ngIf="registerForm.get('username')?.hasError('usernameTaken') && registerForm.get('username')?.touched">Nombre de usuario no disponible.</small>
       </div>
 
       <div class="form-group">
         <label for="reg-password">Contraseña</label>
-        <input id="reg-password" type="password" formControlName="password" placeholder="••••••••">
+        <div class="input-container" style="position: relative;">
+          <input id="reg-password" [type]="showRegisterPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" style="padding-right: 40px;">
+          <button type="button" class="btn-icon" (click)="toggleRegisterPasswordVisibility()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: transparent; cursor: pointer; color: inherit; padding: 0;">
+            <lucide-icon [name]="showRegisterPassword ? 'eye-off' : 'eye'" [size]="20"></lucide-icon>
+          </button>
+        </div>
         <small class="error-text" *ngIf="registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched">La contraseña es requerida.</small>
         <small class="error-text" *ngIf="registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched">Mínimo 6 caracteres.</small>
         <small class="error-text" *ngIf="registerForm.get('password')?.hasError('pattern') && registerForm.get('password')?.touched">Debe incluir minúsculas, mayúsculas, un número y un carácter especial.</small>

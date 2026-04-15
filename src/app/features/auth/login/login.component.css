@@ -71,6 +71,12 @@ input {
   outline: none;
 }
 
+/* Ocultar el botón de ver contraseña por defecto del navegador (Edge/Chrome) */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
 input::placeholder {
   color: #aeb6bf;
 }

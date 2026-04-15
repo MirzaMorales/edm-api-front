@@ -33,6 +33,10 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./features/users/user-profile/user-profile').then(m => m.UserProfileComponent)
+      },
+      {
+        path: 'profile/edit',
+        loadComponent: () => import('./features/users/user-form/user-form').then(m => m.UserForm)
       }
     ]
   },

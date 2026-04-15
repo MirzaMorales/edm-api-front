@@ -23,6 +23,10 @@ export class UserService {
     return this.http.post<User>(`${this.apiUrl}/insert-user`, user);
   }
 
+  checkUsernameAvailability(username: string): Observable<{ available: boolean }> {
+    return this.http.get<{ available: boolean }>(`${this.apiUrl}/check-username/${username}`);
+  }
+
   updateUser(id: number, user: UpdateUserDto): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/${id}`, user);
   }

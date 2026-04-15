@@ -5,21 +5,20 @@ import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
   const router = inject(Router);
-  const token = authService.getAccessToken();
 
-  // Si tenemos un token, clonamos la petición y le añadimos el Header de Authorization
-  const authReq = token
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-    : req;
+  // Clonamos la petición para incluir withCredentials: true
+  // Esto permite que el navegador envíe automáticamente las cookies HttpOnly
+  const authReq = req.clone({
+    withCredentials: true
+  });
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Si el servidor responde 401 (no autorizado / token expirado),
-      // limpiamos la sesión y redirigimos al login
+      // Si el servidor responde 401 (no autorizado / cookie expirada),
+      // redirigimos al login y limpiamos bandera local
       if (error.status === 401) {
-        localStorage.clear();
+        localStorage.removeItem('is_auth');
         router.navigate(['/auth/login']);
       }
       return throwError(() => error);

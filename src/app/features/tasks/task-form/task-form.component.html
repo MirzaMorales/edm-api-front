@@ -35,6 +35,9 @@
         <div class="error-text" *ngIf="taskForm.get('name')?.hasError('minlength') && taskForm.get('name')?.touched">
           El nombre debe tener al menos 3 caracteres.
         </div>
+        <div class="error-text" *ngIf="taskForm.get('name')?.hasError('pattern') && taskForm.get('name')?.touched">
+          El nombre debe iniciar con letras o números, no ser solo espacios y no se permiten caracteres especiales.
+        </div>
       </div>
 
       <!-- Descripción -->
@@ -54,6 +57,9 @@
         </div>
         <div class="error-text" *ngIf="taskForm.get('description')?.hasError('required') && taskForm.get('description')?.touched">
           La descripción es requerida.
+        </div>
+        <div class="error-text" *ngIf="taskForm.get('description')?.hasError('pattern') && taskForm.get('description')?.touched">
+          La descripción no puede iniciar con un espacio ni ser solo espacios.
         </div>
         <div class="error-text" *ngIf="taskForm.get('description')?.hasError('maxlength') && taskForm.get('description')?.touched">
           La descripción no puede superar los 500 caracteres.
@@ -75,7 +81,8 @@
       <!-- Botones de Acción -->
       <div class="form-actions">
         <button type="button" class="btn-cancel" (click)="cancel()" [disabled]="isSubmitting">Cancelar</button>
-        <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+        <button type="submit" class="btn-submit"
+          [disabled]="isSubmitting || taskForm.get('name')?.invalid || taskForm.get('description')?.invalid">
           <span *ngIf="!isSubmitting">{{ isEditMode ? 'Actualizar Tarea' : 'Crear Tarea' }}</span>
           <span *ngIf="isSubmitting" class="button-spinner"></span>
         </button>

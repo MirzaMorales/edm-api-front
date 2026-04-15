@@ -72,6 +72,22 @@ label {
   font-weight: normal;
 }
 
+.readonly-badge {
+  font-size: 0.78em;
+  font-weight: 500;
+  color: #9ca3af;
+  letter-spacing: 0.3px;
+}
+
+/* Input bloqueado en modo edición */
+.form-control.readonly-field {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
+  user-select: none;
+}
+
 .form-control {
   width: 100%;
   padding: 0.8rem 1rem;

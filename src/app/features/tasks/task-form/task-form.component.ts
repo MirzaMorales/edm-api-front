@@ -6,6 +6,12 @@ import { NotificationService } from '../../../core/services/notification.service
 import { Task } from '../../../core/models/task.model';
 import { sanitizeText } from '../../../core/utils/security.utils';
 
+/** Solo letras (con acentos), números y espacios. Sin caracteres especiales. No espacios al inicio. */
+const TASK_NAME_PATTERN = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ0-9][a-zA-ZáéíóúÁÉÍÓÚüÜñÑ0-9\s]*$/;
+
+/** Permite cualquier carácter, pero no puede iniciar con espacios ni estar compuesto solo por estos. */
+const TASK_DESC_PATTERN = /^[^\s][\s\S]*$/;
+
 @Component({
   selector: 'app-task-form',
   standalone: false,
@@ -32,8 +38,8 @@ export class TaskFormComponent implements OnInit {
     private notificationService: NotificationService
   ) {
     this.taskForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
-      description: ['', [Validators.required, Validators.maxLength(this.MAX_DESC_LENGTH)]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(TASK_NAME_PATTERN)]],
+      description: ['', [Validators.required, Validators.maxLength(this.MAX_DESC_LENGTH), Validators.pattern(TASK_DESC_PATTERN)]],
       priority: [false]
     });
   }

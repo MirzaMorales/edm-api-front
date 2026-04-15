@@ -5,8 +5,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UserService } from '../../../core/services/api/user.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { User } from '../../../core/models/user.model';
-import { USERNAME_PATTERN, NAME_PATTERN, PASSWORD_PATTERN, sanitizeText } from '../../../core/utils/security.utils';
+import { User, CreateUserDto, UpdateUserDto } from '../../../core/models/user.model';
+import { USERNAME_PATTERN, NAME_PATTERN, PASSWORD_PATTERN, sanitizeText, noOnlySpaces, usernameAsyncValidator } from '../../../core/utils/security.utils';
 
 @Component({
   selector: 'app-user-form',
@@ -25,6 +25,7 @@ export class UserForm implements OnInit {
 
   userForm!: FormGroup;
   isEditMode = false;
+  isProfileEdit = false;
   userId: number | null = null;
   loading = false;
   error = '';
@@ -36,22 +37,46 @@ export class UserForm implements OnInit {
 
   initForm(): void {
     this.userForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(NAME_PATTERN)]],
-      lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(NAME_PATTERN)]],
-      // El patrón USERNAME_PATTERN asegura que no se ingresen caracteres especiales ni espacios
-      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(USERNAME_PATTERN)]],
-      password: ['', [Validators.minLength(6), Validators.pattern(PASSWORD_PATTERN)]] // Solo requerido en creación, se configura en checkEditMode
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(NAME_PATTERN), noOnlySpaces()]],
+      lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(NAME_PATTERN), noOnlySpaces()]],
+      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(USERNAME_PATTERN)], [usernameAsyncValidator(this.userService)]],
+      password: ['', [Validators.minLength(6), Validators.pattern(PASSWORD_PATTERN)]]
     });
   }
 
   checkEditMode(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
+    const url = this.router.url;
+
     if (idParam) {
+      // Edición desde lista de usuarios (/users/:id/edit)
       this.isEditMode = true;
       this.userId = +idParam;
       this.loadUserData(this.userId);
+    } else if (url.includes('/profile/edit')) {
+      // Edición del propio perfil sin ID en la URL (/profile/edit)
+      this.isEditMode = true;
+      this.isProfileEdit = true;
+      this.loading = true;
+      this.authService.getProfile().subscribe({
+        next: (user: User) => {
+          this.userId = user.id;
+          this.userForm.patchValue({
+            name: user.name,
+            lastname: user.lastname,
+            username: user.username,
+          });
+          this.userForm.get('username')?.disable();
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.error = 'No se pudo cargar el perfil.';
+          this.loading = false;
+        }
+      });
     } else {
-      // En modo creación, la contraseña es obligatoria
+      // Creación de nuevo usuario
       this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(6), Validators.pattern(PASSWORD_PATTERN)]);
       this.userForm.get('password')?.updateValueAndValidity();
     }
@@ -65,8 +90,8 @@ export class UserForm implements OnInit {
           name: user.name,
           lastname: user.lastname,
           username: user.username,
-          // La contraseña no se rellena por seguridad; si está vacía no se modifica
         });
+        this.userForm.get('username')?.disable();
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -89,15 +114,17 @@ export class UserForm implements OnInit {
     const formValue = this.userForm.value;
 
     // Sanitizamos los campos de texto para prevenir XSS
-    const sanitizedData = {
+    // En modo edición, el username no se incluye porque está deshabilitado
+    // y Angular lo excluye automáticamente de formValue (devolvería undefined)
+    const sanitizedData: Record<string, any> = {
       name: sanitizeText(formValue.name),
       lastname: sanitizeText(formValue.lastname),
-      username: sanitizeText(formValue.username),
+      ...(!this.isEditMode ? { username: sanitizeText(formValue.username) } : {}),
       ...(formValue.password ? { password: formValue.password } : {})
     };
 
     if (this.isEditMode && this.userId) {
-      this.userService.updateUser(this.userId, sanitizedData).subscribe({
+      this.userService.updateUser(this.userId, sanitizedData as UpdateUserDto).subscribe({
         next: () => {
           this.notificationService.success('Usuario actualizado correctamente');
           this.loading = false;
@@ -116,7 +143,7 @@ export class UserForm implements OnInit {
         error: (err) => this.handleError(err)
       });
     } else {
-      this.userService.createUser(sanitizedData).subscribe({
+      this.userService.createUser(sanitizedData as CreateUserDto).subscribe({
         next: () => {
           this.notificationService.success('Usuario creado correctamente');
           this.router.navigate(['/users']);

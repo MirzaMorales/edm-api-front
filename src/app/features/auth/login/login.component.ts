@@ -3,8 +3,9 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UserService } from '../../../core/services/api/user.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { CommonModule } from '@angular/common';
-import { USERNAME_PATTERN, NAME_PATTERN, PASSWORD_PATTERN, sanitizeText } from '../../../core/utils/security.utils';
+import { USERNAME_PATTERN, NAME_PATTERN, PASSWORD_PATTERN, sanitizeText, usernameAsyncValidator } from '../../../core/utils/security.utils';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -23,11 +24,13 @@ export class LoginComponent {
   isSubmitting: boolean = false;
   showPassword = false;
   passwordFailed = false;
+  showRegisterPassword = false;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private userService: UserService,
+    private notificationService: NotificationService,
     private router: Router
   ) {
     // Formulario de login con validaciones: campo requerido, longitud mínima y patrón seguro
@@ -36,11 +39,11 @@ export class LoginComponent {
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
-    // Formulario de registro con validaciones equivalentes
+    // Formulario de registro con validaciones equivalentes y validador asíncrono de username
     this.registerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(NAME_PATTERN)]],
       lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(NAME_PATTERN)]],
-      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(USERNAME_PATTERN)]],
+      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(USERNAME_PATTERN)], [usernameAsyncValidator(this.userService)]],
       password: ['', [Validators.required, Validators.minLength(6), Validators.pattern(PASSWORD_PATTERN)]]
     });
   }
@@ -65,6 +68,7 @@ export class LoginComponent {
         next: () => {
           this.isSubmitting = false;
           this.registerMessage = '¡Cuenta creada con éxito! Ya puedes iniciar sesión.';
+          this.notificationService.success('¡Cuenta creada con éxito! Ya puedes iniciar sesión.');
           setTimeout(() => {
             this.toggleRegisterModal();
           }, 2000);
@@ -84,6 +88,10 @@ export class LoginComponent {
     if (!this.passwordFailed) {
       this.showPassword = !this.showPassword;
     }
+  }
+
+  toggleRegisterPasswordVisibility(): void {
+    this.showRegisterPassword = !this.showRegisterPassword;
   }
 
   onSubmit(): void {
@@ -115,6 +123,8 @@ export class LoginComponent {
             }
           }
           this.errorMessage = msg;
+          this.notificationService.error(msg);
+          this.loginForm.reset();
           console.error('Error detallado de login:', err);
         }
       });

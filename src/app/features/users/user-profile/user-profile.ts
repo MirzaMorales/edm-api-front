@@ -16,7 +16,6 @@ import { User } from '../../../core/models/user.model';
   styleUrls: ['./user-profile.css']
 })
 export class UserProfileComponent implements OnInit {
-  // Tipado explícito con la interfaz User — evita el uso de 'any'
   user: User | null = null;
   loading: boolean = true;
   error: string = '';
@@ -46,16 +45,13 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  /** Retorna la inicial del nombre del usuario para el avatar */
   getInitials(): string {
     if (!this.user || !this.user.name) return '?';
     return this.user.name.charAt(0).toUpperCase();
   }
 
   editProfile(): void {
-    if (this.user && this.user.id) {
-      this.router.navigate(['/users', this.user.id, 'edit']);
-    }
+    this.router.navigate(['/profile/edit']);
   }
 
   async deleteProfile(): Promise<void> {
@@ -69,14 +65,12 @@ export class UserProfileComponent implements OnInit {
     if (confirmed) {
       this.userService.deleteUser(this.user.id).subscribe({
         next: () => {
-          // Mensaje de despedida antes de cerrar sesión
           this.notificationService.info('Tu cuenta se está cerrando para siempre. Cerrando sesión...');
           
-          // Esperamos un momento para que el usuario lea el mensaje antes de redirigir
           setTimeout(() => {
             this.authService.logout().subscribe({
               next: () => this.router.navigate(['/login']),
-              error: () => this.router.navigate(['/login']) // Redirigimos incluso si falla la petición
+              error: () => this.router.navigate(['/login'])
             });
           }, 1500);
         },

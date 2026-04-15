@@ -14,11 +14,15 @@ export class AuthService {
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(res => {
-        localStorage.setItem('at', res.access_token);
-        localStorage.setItem('rt', res.refresh_token);
-      })
+      tap(() => localStorage.setItem('is_auth', 'true'))
     );
+  }
+
+  isAuthenticated(): boolean {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return localStorage.getItem('is_auth') === 'true';
+    }
+    return false;
   }
 
   getProfile(): Observable<any> {
@@ -28,17 +32,7 @@ export class AuthService {
   // Este método coincide con tu @Post("logout") en NestJS
   logout(): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/logout`, {}).pipe(
-      finalize(() => {
-        // Limpiamos los tokens locales pase lo que pase con la petición al servidor
-        localStorage.clear();
-      })
+      tap(() => localStorage.removeItem('is_auth'))
     );
-  }
-
-  getAccessToken() { 
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return localStorage.getItem('at'); 
-    }
-    return null;
   }
 }

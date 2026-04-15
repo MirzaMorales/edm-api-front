@@ -23,6 +23,7 @@
                  placeholder="Ej: Ana"
                  [ngClass]="{'is-invalid': userForm.get('name')?.invalid && userForm.get('name')?.touched}">
           <div class="error-text" *ngIf="userForm.get('name')?.hasError('required') && userForm.get('name')?.touched">El nombre es requerido.</div>
+          <div class="error-text" *ngIf="userForm.get('name')?.hasError('onlySpaces') && userForm.get('name')?.touched">El nombre no puede contener solo espacios.</div>
           <div class="error-text" *ngIf="userForm.get('name')?.hasError('minlength') && userForm.get('name')?.touched">Mínimo 3 caracteres.</div>
           <div class="error-text" *ngIf="userForm.get('name')?.hasError('pattern') && userForm.get('name')?.touched">Solo letras y espacios.</div>
         </div>
@@ -33,21 +34,28 @@
                  placeholder="Ej: Pérez"
                  [ngClass]="{'is-invalid': userForm.get('lastname')?.invalid && userForm.get('lastname')?.touched}">
           <div class="error-text" *ngIf="userForm.get('lastname')?.hasError('required') && userForm.get('lastname')?.touched">El apellido es requerido.</div>
+          <div class="error-text" *ngIf="userForm.get('lastname')?.hasError('onlySpaces') && userForm.get('lastname')?.touched">El apellido no puede contener solo espacios.</div>
           <div class="error-text" *ngIf="userForm.get('lastname')?.hasError('minlength') && userForm.get('lastname')?.touched">Mínimo 3 caracteres.</div>
           <div class="error-text" *ngIf="userForm.get('lastname')?.hasError('pattern') && userForm.get('lastname')?.touched">Solo letras y espacios.</div>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="username">Nombre de Usuario <span class="required">*</span></label>
+        <label for="username">
+          Nombre de Usuario
+          <span *ngIf="!isEditMode" class="required">*</span>
+          <span *ngIf="isEditMode" class="text-muted readonly-badge">🔒 No editable</span>
+        </label>
         <div class="input-container">
           <input type="text" id="username" formControlName="username" class="form-control"
                  placeholder="aperez32"
+                 [class.readonly-field]="isEditMode"
                  [ngClass]="{'is-invalid': userForm.get('username')?.invalid && userForm.get('username')?.touched}">
         </div>
         <div class="error-text" *ngIf="userForm.get('username')?.hasError('required') && userForm.get('username')?.touched">El nombre de usuario es requerido.</div>
         <div class="error-text" *ngIf="userForm.get('username')?.hasError('minlength') && userForm.get('username')?.touched">Mínimo 3 caracteres.</div>
         <div class="error-text" *ngIf="userForm.get('username')?.hasError('pattern') && userForm.get('username')?.touched">Solo letras, números, guiones y guiones bajos. Sin espacios.</div>
+        <div class="error-text" *ngIf="userForm.get('username')?.hasError('usernameTaken') && userForm.get('username')?.touched">Nombre de usuario no disponible.</div>
       </div>
 
       <div class="form-group">
@@ -61,7 +69,7 @@
       </div>
 
       <div class="form-actions">
-        <a routerLink="/users" class="btn-cancel">Cancelar</a>
+        <a [routerLink]="isProfileEdit ? '/profile' : '/users'" class="btn-cancel">Cancelar</a>
         <button type="submit" class="btn-submit" [disabled]="loading || userForm.invalid">
           <span *ngIf="!loading">{{ isEditMode ? 'Actualizar Usuario' : 'Crear Usuario' }}</span>
           <span *ngIf="loading" class="button-spinner"></span>
